@@ -97,11 +97,14 @@ public class MayaAlertMonitor {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"scrTo\"]/maya-report-actions/div[4]")));
 
+        System.out.println("Page is up...");
+
         // Find all report entries
         List<WebElement> allDates = driver.findElements(By.xpath("//div[contains(@class,'feedItemDate hidden-xs')]"));
         List<WebElement> allCampanies = driver.findElements(By.xpath("//h2[@class='ng-binding']"));
         List<WebElement> allAnnouncements = driver.findElements(By.xpath("//a[contains(@class,'messageContent ng-binding')]"));
 
+        System.out.println("All entries fetched...");
 
         for (int i = 0; i < allDates.size(); i++) {
             System.out.println("Date: " + allDates.get(i).getText());
@@ -119,11 +122,15 @@ public class MayaAlertMonitor {
         String FROM_WHATSAPP_NUMBER = "whatsapp:+14155238886"; // Twilio Sandbox WhatsApp number
         String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
 
+
+
         // Initialize Twilio
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 
         // StringBuilder to compile the message
         StringBuilder messageBody = new StringBuilder();
+        System.out.println("Trying to send whatsup message with: " + messageBody);
+
 
         for (int i = 0; i < allDates.size(); i++) {
             messageBody.append(allDates.get(i).getText()).append("\n");
