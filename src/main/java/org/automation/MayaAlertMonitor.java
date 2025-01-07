@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -11,6 +12,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.*;
@@ -25,10 +28,15 @@ import com.twilio.type.PhoneNumber;
 
 import java.time.format.DateTimeFormatter;
 
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
+
 public class MayaAlertMonitor {
 
 
-    public static void main(String[] args) throws JsonProcessingException {
+    public static void main(String[] args) throws IOException {
 
         // Initialize WebDriver using WebDriverManager
         WebDriverManager.chromedriver().setup();
@@ -94,8 +102,13 @@ public class MayaAlertMonitor {
         driver.get(fullUrl);
 
         // Wait until the reports container is loaded
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"scrTo\"]/maya-report-actions/div[4]")));
+
+
+        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(screenshot, new File("screenshot.png"));
+        System.out.println("Screenshot taken");
 
         System.out.println("Page is up...");
 
@@ -104,7 +117,14 @@ public class MayaAlertMonitor {
         List<WebElement> allCampanies = driver.findElements(By.xpath("//h2[@class='ng-binding']"));
         List<WebElement> allAnnouncements = driver.findElements(By.xpath("//a[contains(@class,'messageContent ng-binding')]"));
 
+
+
         System.out.println("All entries fetched...");
+        System.out.println("Number of dates: " + allDates.size());
+        System.out.println("Number of companies: " + allCampanies.size());
+        System.out.println("Number of announcements: " + allAnnouncements.size());
+
+
 
         for (int i = 0; i < allDates.size(); i++) {
             System.out.println("Date: " + allDates.get(i).getText());

@@ -29,9 +29,14 @@ jobs:
           sudo apt-get install -y google-chrome-stable
           sudo apt-get install -y chromium-chromedriver
 
-      - name: Build with Maven
-        run: mvn clean install
 
 
       - name: Run MayaAlertMonitor
-        run: mvn exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
+        run: mvn compile exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
+
+      - name: Upload Screenshot
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshot
+          path: screenshot.png
