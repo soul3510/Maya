@@ -30,7 +30,7 @@ jobs:
         env:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TO_WHATSAPP_NUMBER: ${{ secrets.TO_WHATSAPP_NUMBER }}
+          TO_WHATSAPP_NUMBER: "whatsapp:+972508266273"
 
       - name: Run MayaAlertMonitor
         run: mvn exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
