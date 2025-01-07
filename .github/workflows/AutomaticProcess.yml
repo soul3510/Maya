@@ -32,11 +32,26 @@ jobs:
       - name: Verify Chrome Installation
         run: google-chrome --version
 
-      # 5) Setup ChromeDriver using pre-built action
-      - name: Setup ChromeDriver
-        uses: actions/setup-chromedriver@v3
-        with:
-          version: latest  # Automatically matches the installed Chrome version
+      # 5) Install ChromeDriver
+      - name: Install ChromeDriver
+        run: |
+          # Extract the major version number from Chrome
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
+          MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d '.' -f 1)
+          echo "Detected Chrome version: $CHROME_VERSION (Major: $MAJOR_VERSION)"
+          
+          # Fetch the latest ChromeDriver for the major version
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$MAJOR_VERSION")
+          echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION"
+          
+          # Download and install ChromeDriver
+          wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+          
+          # Verify ChromeDriver installation
+          chromedriver --version
 
       # 6) Build & Run your Maven project
       - name: Build and Run the code
