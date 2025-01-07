@@ -28,19 +28,6 @@ import java.time.format.DateTimeFormatter;
 public class MayaAlertMonitor {
 
 
-    // Twilio Credentials (Replace with your actual credentials)
-
-
-    public static final String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
-    public static final String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
-
-
-    // WhatsApp Numbers
-    public static final String FROM_WHATSAPP_NUMBER = "whatsapp:+14155238886"; // Twilio Sandbox WhatsApp number
-
-    public static final String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
-
-
     public static void main(String[] args) throws JsonProcessingException {
 
         // Initialize WebDriver using WebDriverManager
@@ -56,8 +43,6 @@ public class MayaAlertMonitor {
 
         // Initialize WebDriver
         WebDriver driver = new ChromeDriver(options);
-
-
 
 
         // Base URL
@@ -122,14 +107,17 @@ public class MayaAlertMonitor {
             System.out.println("Date: " + allDates.get(i).getText());
             System.out.println("Company: " + allCampanies.get(i).getText());
             System.out.println("Message: " + allAnnouncements.get(i).getText());
-            if (i==2){
+            if (i == 2) {
                 //Stop
                 break;
             }
         }
 
 
-
+        String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
+        String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
+        String FROM_WHATSAPP_NUMBER = "whatsapp:+14155238886"; // Twilio Sandbox WhatsApp number
+        String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
 
         // Initialize Twilio
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
@@ -141,7 +129,7 @@ public class MayaAlertMonitor {
             messageBody.append(allDates.get(i).getText()).append("\n");
             messageBody.append(allCampanies.get(i).getText()).append("\n");
             messageBody.append(allAnnouncements.get(i).getText()).append("\n\n");
-            if (i==2){
+            if (i == 2) {
                 //Stop
                 break;
             }
@@ -160,7 +148,6 @@ public class MayaAlertMonitor {
 
         // Print the message SID for confirmation
         System.out.println("WhatsApp Message sent with SID: " + message.getSid());
-
 
 
         driver.close();
