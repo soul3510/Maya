@@ -44,14 +44,22 @@ jobs:
       # 6) Install matching ChromeDriver
       - name: Install ChromeDriver
         run: |
+          # Extract the major version number from Chrome
           CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
-          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
-          echo "Detected Chrome version: $CHROME_VERSION"
+          MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d '.' -f 1)
+          echo "Detected Chrome version: $CHROME_VERSION (Major: $MAJOR_VERSION)"
+          
+          # Fetch the latest ChromeDriver for the major version
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$MAJOR_VERSION")
           echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION"
+          
+          # Download and install ChromeDriver
           wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/local/bin/
           sudo chmod +x /usr/local/bin/chromedriver
+          
+          # Verify ChromeDriver installation
           chromedriver --version
       
       
