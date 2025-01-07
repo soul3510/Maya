@@ -8,6 +8,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -24,6 +26,7 @@ import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
 import java.time.format.DateTimeFormatter;
+import java.util.logging.Level;
 
 public class MayaAlertMonitor {
 
@@ -47,18 +50,20 @@ public class MayaAlertMonitor {
 
         // Set Chrome options
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // Run in headless mode
         options.addArguments("--disable-gpu"); // Applicable to Windows OS
         options.addArguments("--window-size=1920,1080");
+        options.addArguments("--headless=new"); // Use '--headless=new' for newer Chrome versions
+        options.addArguments("--no-sandbox"); // Bypass OS security model
+        options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
 
         // Initialize WebDriver
         WebDriver driver = new ChromeDriver(options);
 
+
+
+
         // Base URL
         String baseUrl = "https://maya.tase.co.il/reports/company";
-
-        // Initialize page number
-        int pageNumber = 1;
 
         LocalDate todayUTC = LocalDate.now(ZoneOffset.UTC);
         ZonedDateTime startOfDayUTC = todayUTC.atStartOfDay(ZoneOffset.UTC);
@@ -81,15 +86,10 @@ public class MayaAlertMonitor {
                 243, 244, 246, 247, 248, 910, 620, 605, 603, 601, 602, 621, 604, 606, 615, 613, 611,
                 612, 622, 614, 616, 308, 224, 330, 904, 1201, 311, 305, 314, 307, 306
         ));
-        queryParams.put("Page", pageNumber);
         queryParams.put("IsBreakingAnnouncement", true);
 
         // Initialize ObjectMapper for JSON processing
         ObjectMapper mapper = new ObjectMapper();
-
-
-        // Update page number in query parameters
-        queryParams.put("Page", pageNumber);
 
         // Convert query parameters to JSON string
         String jsonParams = mapper.writeValueAsString(queryParams);
@@ -99,6 +99,12 @@ public class MayaAlertMonitor {
 
         // Construct full URL
         String fullUrl = baseUrl + "?q=" + encodedParams;
+
+
+        System.out.println("Starting MayaAlertMonitor...");
+
+
+        System.out.println(fullUrl);
 
         // Navigate to the URL
         driver.get(fullUrl);

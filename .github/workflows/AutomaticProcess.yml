@@ -21,19 +21,41 @@ jobs:
           distribution: temurin
           java-version: '11'
 
-      # 3) Install dependencies for Chrome and ChromeDriver
-      - name: Install Chrome
+
+
+      # 3) Check Chrome version
+      - name: Check Chrome Version
+        run: google-chrome --version
+
+      # 4) Install Chrome
+      - name: Install Google Chrome
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          sudo apt-get install -y wget unzip
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+      
 
+      # 5) Verify Chrome installation
+      - name: Verify Chrome Installation
+        run: google-chrome --version
+
+
+      # 6) Install matching ChromeDriver
       - name: Install ChromeDriver
         run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-chromedriver
-          # or you can also install it another way:
-          # sudo apt-get install -y google-chrome-stable
-          # sudo apt-get install -y chromedriver
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+          echo "Detected Chrome version: $CHROME_VERSION"
+          echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION"
+          wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+          chromedriver --version
+      
+      
+  
 
       # 4) Build & Run your Maven project
       - name: Build and Run the code
