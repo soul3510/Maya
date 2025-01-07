@@ -1,6 +1,5 @@
 name: Run Selenium Code Every 15 Minutes
 
-# We allow manual dispatch AND schedule
 on:
   schedule:
     - cron: '*/15 * * * *'  # Every 15 minutes
@@ -21,51 +20,25 @@ jobs:
           distribution: temurin
           java-version: '11'
 
-
-
-      # 3) Check Chrome version
-      - name: Check Chrome Version
-        run: google-chrome --version
-
-      # 4) Install Chrome
+      # 3) Install Google Chrome
       - name: Install Google Chrome
         run: |
           sudo apt-get update
           sudo apt-get install -y wget unzip
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo apt install -y ./google-chrome-stable_current_amd64.deb
-      
 
-      # 5) Verify Chrome installation
+      # 4) Verify Chrome installation
       - name: Verify Chrome Installation
         run: google-chrome --version
 
+      # 5) Setup ChromeDriver using pre-built action
+      - name: Setup ChromeDriver
+        uses: actions/setup-chromedriver@v3
+        with:
+          version: latest  # Automatically matches the installed Chrome version
 
-      # 6) Install matching ChromeDriver
-      - name: Install ChromeDriver
-        run: |
-          # Extract the major version number from Chrome
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
-          MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d '.' -f 1)
-          echo "Detected Chrome version: $CHROME_VERSION (Major: $MAJOR_VERSION)"
-          
-          # Fetch the latest ChromeDriver for the major version
-          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$MAJOR_VERSION")
-          echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION"
-          
-          # Download and install ChromeDriver
-          wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-          
-          # Verify ChromeDriver installation
-          chromedriver --version
-      
-      
-  
-
-      # 4) Build & Run your Maven project
+      # 6) Build & Run your Maven project
       - name: Build and Run the code
         run: |
           mvn clean install
@@ -74,3 +47,4 @@ jobs:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TO_WHATSAPP_NUMBER: ${{ secrets.TO_WHATSAPP_NUMBER }}
+          FROM_WHATSAPP_NUMBER: ${{ secrets.FROM_WHATSAPP_NUMBER }}
