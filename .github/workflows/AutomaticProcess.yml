@@ -8,6 +8,10 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TO_WHATSAPP_NUMBER: "whatsapp:+972508266273"
 
     steps:
       - name: Check out repository
@@ -27,10 +31,7 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean install
-        env:
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TO_WHATSAPP_NUMBER: "whatsapp:+972508266273"
+
 
       - name: Run MayaAlertMonitor
         run: mvn exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"

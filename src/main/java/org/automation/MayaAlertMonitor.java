@@ -24,7 +24,6 @@ import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
 import java.time.format.DateTimeFormatter;
-import java.util.logging.Level;
 
 public class MayaAlertMonitor {
 
@@ -39,7 +38,7 @@ public class MayaAlertMonitor {
     // WhatsApp Numbers
     public static final String FROM_WHATSAPP_NUMBER = "whatsapp:+14155238886"; // Twilio Sandbox WhatsApp number
 
-    public static final String TO_WHATSAPP_NUMBER = System.getenv("TO_WHATSAPP_NUMBER");
+    public static final String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
 
 
     public static void main(String[] args) throws JsonProcessingException {
