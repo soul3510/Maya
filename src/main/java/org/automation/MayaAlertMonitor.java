@@ -52,9 +52,6 @@ public class MayaAlertMonitor {
             WebDriver driver = new ChromeDriver(options);
 
 
-            // Base URL
-            String baseUrl = "https://maya.tase.co.il/reports/company";
-
             LocalDate todayUTC = LocalDate.now(ZoneOffset.UTC);
             LocalDate yesterdayUTC = todayUTC.minusDays(1);
             ZonedDateTime startOfDayUTC = yesterdayUTC.atStartOfDay(ZoneOffset.UTC);
@@ -62,42 +59,10 @@ public class MayaAlertMonitor {
             String formattedDateFrom = startOfDayUTC.format(formatter);
             String formattedDateTo = "2027-03-30T21:00:00.000Z";
 
-            // JSON parameters
-            Map<String, Object> queryParams = new HashMap<>();
-            queryParams.put("DateFrom", formattedDateFrom);
-            queryParams.put("DateTo", formattedDateTo);
-            queryParams.put("events", Arrays.asList(200, 100, 300, 400, 1100, 1400, 500, 1300, 600, 1600, 1200, 700, 1500, 900));
-            queryParams.put("subevents", Arrays.asList(
-                    201, 270, 271, 202, 203, 254, 210, 211, 212, 907, 219, 205, 206, 258, 251, 236, 255,
-                    240, 252, 256, 250, 227, 226, 231, 259, 229, 278, 101, 103, 104, 105, 106, 114, 113,
-                    233, 273, 222, 282, 109, 281, 220, 280, 228, 110, 111, 112, 283, 102, 322, 320, 310,
-                    316, 318, 317, 319, 326, 309, 324, 301, 302, 303, 304, 315, 327, 312, 323, 325, 313,
-                    401, 403, 405, 402, 404, 501, 502, 504, 2460, 204, 1102, 1103, 1104, 1105, 221, 1404,
-                    1401, 1402, 230, 223, 1406, 238, 1405, 215, 239, 216, 253, 245, 217, 214, 241, 249,
-                    243, 244, 246, 247, 248, 910, 235, 260, 225, 265, 915, 234, 207, 208, 209, 242, 2560,
-                    620, 605, 603, 601, 602, 621, 604, 606, 615, 613, 611, 612, 622, 614, 616, 218, 1690,
-                    1202, 1605, 1692, 1610, 1670, 1615, 1620, 1635, 1625, 1630, 1640, 1645, 1660, 1204,
-                    1203, 1680, 1650, 308, 224, 330, 904, 1201, 311, 305, 314, 307, 306, 707, 701, 702,
-                    703, 704, 213, 1501, 1502, 1503, 1504, 909, 908, 903, 901, 902, 911, 912, 914, 905, 906
-            ));
-            queryParams.put("Page", 1);
-            queryParams.put("IsBreakingAnnouncement", true);
-
-            // Initialize ObjectMapper for JSON processing
-            ObjectMapper mapper = new ObjectMapper();
-
-            // Convert query parameters to JSON string
-            String jsonParams = mapper.writeValueAsString(queryParams);
-
-            // URL-encode the JSON string
-            String encodedParams = URLEncoder.encode(jsonParams, StandardCharsets.UTF_8);
-
-            // Construct full URL
-            String fullUrl = baseUrl + "?q=" + encodedParams;
-
+            // Base URL
+            String fullUrl = "https://maya.tase.co.il/reports/company?q=%7B%22DateFrom%22:%22"+formattedDateFrom+"%22,%22DateTo%22:%22"+formattedDateTo+"%22,%22IsBreakingAnnouncement%22:true,%22Page%22:1,%22events%22:%5B200,100,300,400,1100,1400,600,1200,1500%5D,%22subevents%22:%5B201,270,271,202,203,254,210,211,212,907,219,205,206,258,251,236,255,240,252,256,250,227,226,231,259,229,278,101,103,104,105,106,114,113,233,273,222,282,109,281,220,280,228,110,111,112,283,102,322,320,310,316,318,317,319,326,309,324,301,302,303,304,315,327,312,323,325,313,401,403,405,402,404,501,502,504,2460,204,1102,1103,1104,1105,221,1404,1401,1402,230,223,1406,238,1405,620,605,603,601,602,621,604,606,615,613,611,612,622,614,616,308,224,330,904,1201,311,305,314,307,306,213,1501,1502,1503,1504%5D%7D";
 
             System.out.println("Starting MayaAlertMonitor...");
-
 
             System.out.println(fullUrl);
 
