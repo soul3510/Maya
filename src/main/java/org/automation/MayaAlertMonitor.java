@@ -29,13 +29,15 @@ public class MayaAlertMonitor {
 
 
     // Twilio Credentials (Replace with your actual credentials)
-    public static final String ACCOUNT_SID = "AC10d2f706b69f2828848ab6cef726ca7b";
-    public static final String AUTH_TOKEN = "009cc8137e55cdcdb22ff0cbbb3a07e3";
+
+    public static final String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
+    public static final String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
+
 
     // WhatsApp Numbers
     public static final String FROM_WHATSAPP_NUMBER = "whatsapp:+14155238886"; // Twilio Sandbox WhatsApp number
-    public static final String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273"; // Your WhatsApp number
 
+    public static final String TO_WHATSAPP_NUMBER = System.getenv("TO_WHATSAPP_NUMBER");
 
 
     public static void main(String[] args) throws JsonProcessingException {

@@ -40,3 +40,7 @@ jobs:
         run: |
           mvn clean install
           mvn exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
+        env:
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TO_WHATSAPP_NUMBER: ${{ secrets.TO_WHATSAPP_NUMBER }}
