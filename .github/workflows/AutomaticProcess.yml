@@ -1,0 +1,42 @@
+name: Run Selenium Code Every 15 Minutes
+
+# We allow manual dispatch AND schedule
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Check out the repository code
+      - uses: actions/checkout@v3
+
+      # 2) Set up Java
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      # 3) Install dependencies for Chrome and ChromeDriver
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install ChromeDriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-chromedriver
+          # or you can also install it another way:
+          # sudo apt-get install -y google-chrome-stable
+          # sudo apt-get install -y chromedriver
+
+      # 4) Build & Run your Maven project
+      - name: Build and Run the code
+        run: |
+          mvn clean install
+          mvn exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
