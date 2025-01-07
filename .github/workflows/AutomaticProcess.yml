@@ -32,5 +32,5 @@ jobs:
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TO_WHATSAPP_NUMBER: ${{ secrets.TO_WHATSAPP_NUMBER }}
 
-      - name: Run tests
-        run: mvn test
+      - name: Run MayaAlertMonitor
+        run: mvn exec:java -Dexec.mainClass="org.MayaAlertMonitor"
