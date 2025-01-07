@@ -33,6 +33,7 @@ public class MayaAlertMonitor {
 
     // Twilio Credentials (Replace with your actual credentials)
 
+
     public static final String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
     public static final String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
 
@@ -66,7 +67,8 @@ public class MayaAlertMonitor {
         String baseUrl = "https://maya.tase.co.il/reports/company";
 
         LocalDate todayUTC = LocalDate.now(ZoneOffset.UTC);
-        ZonedDateTime startOfDayUTC = todayUTC.atStartOfDay(ZoneOffset.UTC);
+        LocalDate yesterdayUTC = todayUTC.minusDays(1);
+        ZonedDateTime startOfDayUTC = yesterdayUTC.atStartOfDay(ZoneOffset.UTC);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         String formattedDateFrom = startOfDayUTC.format(formatter);
 
