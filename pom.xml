@@ -89,18 +89,6 @@
 
     </dependencies>
 
-
-
-<!--    <properties>-->
-
-<!--        <TWILIO_ACCOUNT_SID>AC10d2f706b69f2828848ab6cef726ca7b</TWILIO_ACCOUNT_SID>-->
-<!--        <TWILIO_AUTH_TOKEN>e0ee412c923bec2849e92e7e83fe86cd</TWILIO_AUTH_TOKEN>-->
-<!--        <TO_WHATSAPP_NUMBER>whatsapp:+972508266273</TO_WHATSAPP_NUMBER>-->
-
-<!--    </properties>-->
-
-
-
     <build>
         <plugins>
             <plugin>

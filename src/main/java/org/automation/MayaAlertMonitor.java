@@ -27,6 +27,7 @@ import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.OutputType;
 import org.apache.commons.io.FileUtils;
@@ -73,7 +74,7 @@ public class MayaAlertMonitor {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"scrTo\"]/maya-report-actions/div[4]")));
 
-
+            TimeUnit.SECONDS.sleep(5);
             System.out.println("Page is up...");
 
             // Find all report entries
