@@ -33,4 +33,4 @@ jobs:
           TO_WHATSAPP_NUMBER: ${{ secrets.TO_WHATSAPP_NUMBER }}
 
       - name: Run MayaAlertMonitor
-        run: mvn exec:java -Dexec.mainClass="org.MayaAlertMonitor"
+        run: mvn exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
