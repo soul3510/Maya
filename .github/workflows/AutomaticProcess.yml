@@ -6,59 +6,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-run:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Check out the repository code
-      - uses: actions/checkout@v3
+      # שלב 1 - משיכת הקוד מה-repo
+      - name: Check out repository
+        uses: actions/checkout@v2
 
-      # 2) Set up Java
+      # שלב 2 - התקנת Java (כאן 11, אפשר לשנות לגירסה אחרת)
       - name: Set up JDK 11
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v2
         with:
-          distribution: temurin
           java-version: '11'
 
-      # 3) Install Google Chrome
-      - name: Install Google Chrome
+      # שלב 3 - התקנת Chrome ו־ChromeDriver
+      - name: Install Chrome & ChromeDriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+          # התקנת Chrome
+          sudo apt-get install -y google-chrome-stable
+          # התקנת Chromium (לפעמים צריך) ו־ChromeDriver
+          sudo apt-get install -y chromium-chromedriver
 
-      # 4) Verify Chrome installation
-      - name: Verify Chrome Installation
-        run: google-chrome --version
-
-      # 5) Install ChromeDriver
-      - name: Install ChromeDriver
-        run: |
-          # Extract the major version number from Chrome
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
-          MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d '.' -f 1)
-          echo "Detected Chrome version: $CHROME_VERSION (Major: $MAJOR_VERSION)"
-          
-          # Fetch the latest ChromeDriver for the major version
-          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$MAJOR_VERSION")
-          echo "Installing ChromeDriver version: $CHROMEDRIVER_VERSION"
-          
-          # Download and install ChromeDriver
-          wget -N https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-          
-          # Verify ChromeDriver installation
-          chromedriver --version
-
-      # 6) Build & Run your Maven project
-      - name: Build and Run the code
-        run: |
-          mvn clean install
-          mvn exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
+      # שלב 4 - הידור הפרויקט (Compile)
+      - name: Build with Maven
+        run: mvn clean install
         env:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TO_WHATSAPP_NUMBER: ${{ secrets.TO_WHATSAPP_NUMBER }}
+
+      # שלב 5 - הרצת הטסטים עם Selenium ב־Headless
+      # אם הקוד שלך כבר יודע לעבוד Headless לא צריך Xvfb,
+      # אבל אם אתה משתמש ב-UI מלא, ניתן לעטוף ב-xvfb-run.
+      - name: Run tests
+        run: mvn test
