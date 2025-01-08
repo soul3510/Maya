@@ -21,8 +21,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MayaAlertMonitor {
 
+public class MayaAlertMonitor {
+    static String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
+    static String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
+    static String FROM_WHATSAPP_NUMBER = "whatsapp:++12186950942"; // Twilio Sandbox WhatsApp number
+    static String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -89,12 +93,6 @@ public class MayaAlertMonitor {
         }
 
 
-        String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
-        String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
-        String FROM_WHATSAPP_NUMBER = "whatsapp:++12186950942"; // Twilio Sandbox WhatsApp number
-        String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
-
-
         // Initialize Twilio
         Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 
@@ -116,7 +114,31 @@ public class MayaAlertMonitor {
         // Convert StringBuilder to String
         String finalMessage = messageBody.toString();
 
+        sendWhatapp(finalMessage);
+        sendSms(finalMessage);
 
+
+        driver.close();
+        driver.quit();
+
+        System.out.println("Done. ");
+    }
+
+
+    public static void sendSms(String finalMessage) {
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+        Message message = Message.creator(
+                new com.twilio.type.PhoneNumber("+972508266273"),
+                new com.twilio.type.PhoneNumber("+12186950942"),
+                finalMessage).create();
+        System.out.println(message.getSid());
+
+        // Print the message SID for confirmation
+        System.out.println("WhatsApp Message sent with SID: " + message.getSid());
+    }
+
+    public static void sendWhatapp(String finalMessage) {
+        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
         // Send WhatsApp message via Twilio
         Message message = Message.creator(
                 new PhoneNumber(TO_WHATSAPP_NUMBER), // To number
@@ -126,12 +148,9 @@ public class MayaAlertMonitor {
 
         // Print the message SID for confirmation
         System.out.println("WhatsApp Message sent with SID: " + message.getSid());
-
-
-        driver.close();
-        driver.quit();
-
-        System.out.println("Done. ");
     }
 }
+
+
+
 
