@@ -1,10 +1,9 @@
 name: Maya Important Messages
 
 on:
-  # Run the workflow every 10 minutes, Sunday to Thursday (0-4),
-  # ignoring Israel time at this point (UTC only).
   schedule:
-    - cron: '*/10 * * * 0-4'
+    - cron: '*/15 8-9 * * 0-4'
+    - cron: '0,60 10-16 * * 0-4'
   workflow_dispatch:
 
 jobs:
@@ -22,58 +21,16 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'temurin'   # בוחר את ספק ה־JDK
           java-version: '11'
 
-      - name: Decide if we run now (Israel time)
-        id: decide_step
-        run: |
-          echo "Now in UTC: $(date)"
-          echo "Now in Israel: $(TZ=Asia/Jerusalem date)"
-          # Extract the hour and minute in Israel time
-          HOUR=$(TZ=Asia/Jerusalem date +'%H')
-          MINUTE=$(TZ=Asia/Jerusalem date +'%M')
-
-          # Convert them to numbers (remove leading zeros)
-          HOUR_INT=$(echo "$HOUR" | sed 's/^0*//')
-          MINUTE_INT=$(echo "$MINUTE" | sed 's/^0*//')
-
-          echo "Israel hour:   $HOUR_INT"
-          echo "Israel minute: $MINUTE_INT"
-
-          # Logic:
-          # 1) If the hour is between 8 and 9 => run every 10 minutes (no need to check the minutes,
-          #    because the cron is already every 10 minutes).
-          # 2) If the hour is between 10 and 15 => run only if the minute is 0 or 30 (every half hour).
-          # 3) Outside the 08:00-16:00 range => do not run at all.
-
-          if [ "$HOUR_INT" -ge 8 ] && [ "$HOUR_INT" -lt 10 ]; then
-            # Between 08:00 and 09:59 => run every 10 minutes (already set in Cron)
-            # Continue without exiting
-            echo "Within 08:00-09:59 range => run now"
-          elif [ "$HOUR_INT" -ge 10 ] && [ "$HOUR_INT" -lt 16 ]; then
-            # Between 10:00 and 15:59 => run only every half hour
-            # Check if minute == 0 or 30
-            if [ "$MINUTE_INT" -eq 0 ] || [ "$MINUTE_INT" -eq 30 ]; then
-              echo "Within 10:00-15:59 range, and minute=0 or 30 => run now"
-            else
-              echo "Within 10:00-15:59, but minute not 0 or 30 => skip"
-              exit 0
-            fi
-          elif [ "$HOUR_INT" -eq 16 ] && [ "$MINUTE_INT" -eq 0 ]; then
-            # Optionally run exactly at 16:00 (since you said until 16:00)
-            echo "16:00 exact => run now"
-          else
-            echo "Not in range 08:00-16:00 => skip"
-            exit 0
-          fi
-
       - name: Install Chrome & ChromeDriver
-        # Will only run if we didn't exit in the previous step
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
           sudo apt-get install -y chromium-chromedriver
+
+
 
       - name: Run MayaAlertMonitor
         run: mvn compile exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
