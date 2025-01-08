@@ -91,7 +91,7 @@ public class MayaAlertMonitor {
 
         String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
         String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
-        String FROM_WHATSAPP_NUMBER = "whatsapp:+14155238886"; // Twilio Sandbox WhatsApp number
+        String FROM_WHATSAPP_NUMBER = "whatsapp:++12186950942"; // Twilio Sandbox WhatsApp number
         String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
 
 
