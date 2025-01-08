@@ -3,7 +3,7 @@ name: Maya Important Messages
 on:
   schedule:
     - cron: '*/15 8-9 * * 0-4'
-    - cron: '0,60 10-16 * * 0-4'
+    - cron: '0 10-16 * * 0-4'
   workflow_dispatch:
 
 jobs:
@@ -12,7 +12,6 @@ jobs:
     env:
       TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
       TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-      TO_WHATSAPP_NUMBER: "whatsapp:+972508266273"
 
     steps:
       - name: Check out repository
@@ -21,16 +20,19 @@ jobs:
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'   # בוחר את ספק ה־JDK
+          distribution: 'temurin'
           java-version: '11'
+
+      - name: Install Maven
+        run: sudo apt-get install -y maven
 
       - name: Install Chrome & ChromeDriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          sudo apt-get install -y wget
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
           sudo apt-get install -y chromium-chromedriver
-
-
 
       - name: Run MayaAlertMonitor
         run: mvn compile exec:java -Dexec.mainClass="org.automation.MayaAlertMonitor"
