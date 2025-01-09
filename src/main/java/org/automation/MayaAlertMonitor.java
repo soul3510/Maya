@@ -1,8 +1,5 @@
 package org.automation;
 
-import com.twilio.Twilio;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -12,6 +9,9 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -19,8 +19,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
 
 public class MayaAlertMonitor {
 
@@ -34,7 +34,7 @@ public class MayaAlertMonitor {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-gpu"); // Applicable to Windows OS
         options.addArguments("--window-size=1920,1080");
-        options.addArguments("--headless=new"); // Use '--headless=new' for newer Chrome versions
+//        options.addArguments("--headless=new"); // Use '--headless=new' for newer Chrome versions
         options.addArguments("--no-sandbox"); // Bypass OS security model
         options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
 
@@ -90,10 +90,9 @@ public class MayaAlertMonitor {
         }
 
 
-
         // StringBuilder to compile the message
         StringBuilder messageBody = new StringBuilder();
-        System.out.println("Trying to send whatsup message with: " + messageBody);
+        System.out.println("Trying to send email message with: " + messageBody);
 
 
         for (int i = 0; i < allDates.size(); i++) {
@@ -109,53 +108,96 @@ public class MayaAlertMonitor {
         // Convert StringBuilder to String
         String finalMessage = messageBody.toString();
 
-
-        sendWhatapp(finalMessage);
-        sendSms(finalMessage);
-
-        driver.close();
-        driver.quit();
-
+        try {
+            sendEmail(finalMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
         System.out.println("Done. ");
     }
 
 
-    public static void sendSms(String finalMessage) {
-         String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
-         String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
-         String FROM_WHATSAPP_NUMBER = "+12186950942"; // Twilio Sandbox WhatsApp number
-         String TO_WHATSAPP_NUMBER = "+972508266273";
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+    public static void sendEmail(String finalMessage) throws MessagingException {
+        // Sender's email ID
+        final String from = System.getenv("EMAIL");
+        final String password = System.getenv("APP_PASSWORD"); // App password generated from Google
+        // Recipient's email ID
+        final String to = System.getenv("EMAIL");
 
-        Message message = Message.creator(
-                new com.twilio.type.PhoneNumber(TO_WHATSAPP_NUMBER),
-                new com.twilio.type.PhoneNumber(FROM_WHATSAPP_NUMBER),
-                finalMessage).create();
-        System.out.println(message.getSid());
+        // SMTP configuration
+        String host = "smtp.gmail.com";
+        Properties properties = new Properties();
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.starttls.enable", "true");
+        properties.put("mail.smtp.host", host);
+        properties.put("mail.smtp.port", "587");
 
-        // Print the message SID for confirmation
-        System.out.println("WhatsApp Message sent with SID: " + message.getSid());
+        // Create session
+        Session session = Session.getInstance(properties, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(from, password);
+            }
+        });
+
+        // Positive keywords in Hebrew
+        String[] positiveKeywords = {
+                "הצלחה", "מכירה", "נבחר ע\"י", "התחלת טיפול", "תוצאות ניסויי", "זכייה", "קבלת אישור"
+        };
+
+        // Build the table structure
+        StringBuilder tableBuilder = new StringBuilder();
+        tableBuilder.append("<table border='1' style='border-collapse:collapse; width:100%; text-align:right; direction:rtl;'>");
+        tableBuilder.append("<tr style='background-color:#f2f2f2;'>")
+                .append("<th>תאריך</th>")
+                .append("<th>חברה</th>")
+                .append("<th>הודעה</th>")
+                .append("</tr>");
+
+        String[] rows = finalMessage.split("\n\n");
+        for (String row : rows) {
+            String[] columns = row.split("\n");
+            if (columns.length == 3) {
+                String message = columns[2];
+
+                // Check for positive keywords in the message
+                boolean containsPositiveKeyword = false;
+                for (String keyword : positiveKeywords) {
+                    if (message.contains(keyword)) {
+                        containsPositiveKeyword = true;
+                        break;
+                    }
+                }
+
+                // Highlight the row if a positive keyword is found
+                String rowStyle = containsPositiveKeyword ? "background-color:#d4f4d2;" : "";
+
+                tableBuilder.append("<tr style='").append(rowStyle).append("'>")
+                        .append("<td>").append(columns[0]).append("</td>")
+                        .append("<td>").append(columns[1]).append("</td>")
+                        .append("<td>").append(message).append("</td>")
+                        .append("</tr>");
+            }
+        }
+        tableBuilder.append("</table>");
+
+        // Create email message
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(from));
+        message.setRecipients(
+                Message.RecipientType.TO, InternetAddress.parse(to));
+        message.setSubject(IsraelTime.getCurrentTime() + " - מאיה הודעות מתפרצות");
+        message.setHeader("Content-Type", "text/html; charset=UTF-8");
+        message.setContent(
+                "<h1 style='direction:rtl;'>התראות מאיה</h1>" + tableBuilder.toString(),
+                "text/html; charset=UTF-8"
+        );
+
+        // Send the email
+        Transport.send(message);
+        System.out.println("Email sent successfully!");
     }
-
-    public static void sendWhatapp(String finalMessage) {
-        String ACCOUNT_SID = System.getenv("TWILIO_ACCOUNT_SID");
-        String AUTH_TOKEN = System.getenv("TWILIO_AUTH_TOKEN");
-        String FROM_WHATSAPP_NUMBER = "whatsapp:+14155238886"; // Twilio Sandbox WhatsApp number
-//        String FROM_WHATSAPP_NUMBER = "whatsapp:+12186950942"; // Twilio Sandbox WhatsApp number
-        String TO_WHATSAPP_NUMBER = "whatsapp:+972508266273";
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
-
-        // Send WhatsApp message via Twilio
-        Message message = Message.creator(
-                new PhoneNumber(TO_WHATSAPP_NUMBER), // To number
-                new PhoneNumber(FROM_WHATSAPP_NUMBER), // From number (Twilio Sandbox)
-                finalMessage // Message body
-        ).create();
-
-        // Print the message SID for confirmation
-        System.out.println("WhatsApp Message sent with SID: " + message.getSid());
-    }
-
 }
 
 

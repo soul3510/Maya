@@ -10,8 +10,8 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     env:
-      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+      EMAIL: ${{ secrets.EMAIL }}
+      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
 
     steps:
       - name: Check out repository
