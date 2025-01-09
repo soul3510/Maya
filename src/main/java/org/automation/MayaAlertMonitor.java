@@ -34,7 +34,7 @@ public class MayaAlertMonitor {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-gpu"); // Applicable to Windows OS
         options.addArguments("--window-size=1920,1080");
-//        options.addArguments("--headless=new"); // Use '--headless=new' for newer Chrome versions
+        options.addArguments("--headless=new"); // Use '--headless=new' for newer Chrome versions
         options.addArguments("--no-sandbox"); // Bypass OS security model
         options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
 
