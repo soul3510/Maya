@@ -1,5 +1,17 @@
 package org.automation;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -11,19 +23,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import io.github.bonigarcia.wdm.WebDriverManager;
-
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 public class MayaAlertMonitor {
 
@@ -103,12 +102,22 @@ public class MayaAlertMonitor {
                 System.out.println("Announcement already exists in the database.");
             } else {
                 // Insert new announcement
-                String insertQuery = "INSERT INTO Maya (announcement_time, Message, Company) VALUES ('" + latestDate + "', '" + latestAnnouncement + "', '" +latestCompany+"')";
+                String insertQuery = "INSERT INTO Maya (announcement_time, Message, Company) VALUES ('" + latestDate + "', '" + latestAnnouncement + "', '" + latestCompany + "')";
                 DBHelper.executeUpdate(insertQuery);
                 System.out.println("New announcement inserted into the database.");
 
+
+                // StringBuilder to compile the message
+                StringBuilder messageBody = new StringBuilder();
+                messageBody.append(latestDate).append("\n");
+                messageBody.append(latestCompany).append("\n");
+                messageBody.append(latestAnnouncement).append("\n\n");
+
+                // Convert StringBuilder to String
+                String finalMessage = messageBody.toString();
+
                 // Send email
-                sendEmail(latestAnnouncement);
+                sendEmail(finalMessage);
                 System.out.println("Email sent for new announcement.");
             }
         } catch (Exception e) {
@@ -187,7 +196,7 @@ public class MayaAlertMonitor {
         message.setSubject(IsraelTime.getCurrentTime() + " - מאיה הודעות מתפרצות");
         message.setHeader("Content-Type", "text/html; charset=UTF-8");
         message.setContent(
-                "<h1 style='direction:rtl;'>התראות מאיה</h1>" + tableBuilder.toString(),
+                "<h1 style='direction:rtl;'>התראות מאיה</h1>" + tableBuilder,
                 "text/html; charset=UTF-8"
         );
 
