@@ -2,8 +2,8 @@ name: Maya Important Messages
 
 on:
   schedule:
-    - cron: '*/15 6-10 * * 0-4'
-    - cron: '0 10-16 * * 0-4'
+    - cron: '*/5 5-8 * * 0-4'
+    - cron: '0 8-20 * * 0-4'
   workflow_dispatch:
 
 jobs:

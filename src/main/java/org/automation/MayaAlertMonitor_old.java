@@ -1,8 +1,18 @@
 package org.automation;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -12,20 +22,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import io.github.bonigarcia.wdm.WebDriverManager;
+public class MayaAlertMonitor_old {
 
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-public class MayaAlertMonitor {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -41,7 +39,9 @@ public class MayaAlertMonitor {
         options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
 
         // Initialize WebDriver
+
         WebDriver driver = new ChromeDriver(options);
+
 
         LocalDate todayUTC = LocalDate.now(ZoneOffset.UTC);
         LocalDate yesterdayUTC = todayUTC.minusDays(1);
@@ -69,52 +69,55 @@ public class MayaAlertMonitor {
 
         // Find all report entries
         List<WebElement> allDates = driver.findElements(By.xpath("//div[contains(@class,'feedItemDate hidden-xs')]"));
-        List<WebElement> allCompanies = driver.findElements(By.xpath("//h2[@class='ng-binding']"));
+        List<WebElement> allCampanies = driver.findElements(By.xpath("//h2[@class='ng-binding']"));
         List<WebElement> allAnnouncements = driver.findElements(By.xpath("//a[contains(@class,'messageContent ng-binding')]"));
+
 
         System.out.println("All entries fetched...");
         System.out.println("Number of dates: " + allDates.size());
-        System.out.println("Number of companies: " + allCompanies.size());
+        System.out.println("Number of companies: " + allCampanies.size());
         System.out.println("Number of announcements: " + allAnnouncements.size());
 
-        if (allDates.isEmpty() || allCompanies.isEmpty() || allAnnouncements.isEmpty()) {
-            System.out.println("No announcements found.");
-            driver.quit();
-            return;
+
+        for (int i = 0; i < allDates.size(); i++) {
+            System.out.println("Date: " + allDates.get(i).getText());
+            System.out.println("Company: " + allCampanies.get(i).getText());
+            System.out.println("Message: " + allAnnouncements.get(i).getText());
+            if (i == 2) {
+                //Stop
+                break;
+            }
         }
 
-        // Extract the latest announcement
-        String latestDate = allDates.get(0).getText();
-        String latestCompany = allCompanies.get(0).getText();
-        String latestAnnouncement = allAnnouncements.get(0).getText();
 
-        System.out.println("Latest Date: " + latestDate);
-        System.out.println("Latest Company: " + latestCompany);
-        System.out.println("Latest Announcement: " + latestAnnouncement);
+        // StringBuilder to compile the message
+        StringBuilder messageBody = new StringBuilder();
+        System.out.println("Trying to send email message with: " + messageBody);
 
-        try (Connection conn = DBHelper.mysqlConnect()) {
-            // Check if the announcement already exists in the database
-            String query = "SELECT COUNT(*) FROM Maya WHERE Message = '" + latestAnnouncement + "'";
-            ResultSet rs = conn.createStatement().executeQuery(query);
-            rs.next();
-            boolean exists = rs.getInt(1) > 0;
 
-            if (exists) {
-                System.out.println("Announcement already exists in the database.");
-            } else {
-                // Insert new announcement
-                String insertQuery = "INSERT INTO Maya (announcement_time, Message, Company) VALUES ('" + latestDate + "', '" + latestAnnouncement + "', '" +latestCompany+"')";
-                DBHelper.executeUpdate(insertQuery);
-                System.out.println("New announcement inserted into the database.");
-
-                // Send email
-                sendEmail(latestAnnouncement);
-                System.out.println("Email sent for new announcement.");
+        for (int i = 0; i < allDates.size(); i++) {
+            messageBody.append(allDates.get(i).getText()).append("\n");
+            messageBody.append(allCampanies.get(i).getText()).append("\n");
+            messageBody.append(allAnnouncements.get(i).getText()).append("\n\n");
+            if (i == 2) {
+                //Stop
+                break;
             }
+        }
+
+        // Convert StringBuilder to String
+        String finalMessage = messageBody.toString();
+
+        try {
+            sendEmail(finalMessage);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            driver.quit();
         }
+        System.out.println("Done. ");
     }
+
 
     public static void sendEmail(String finalMessage) throws MessagingException {
         // Sender's email ID
@@ -196,3 +199,7 @@ public class MayaAlertMonitor {
         System.out.println("Email sent successfully!");
     }
 }
+
+
+
+
