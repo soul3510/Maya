@@ -2,11 +2,11 @@ name: Maya Important Messages
 
 on:
   schedule:
-    - # For IST Standard Time (UTC+2)
-      - cron: '*/10 6-14 * * 0-4'
+    # For IST Standard Time (UTC+2)
+    - cron: '*/10 6-14 * * 0-4'
 
-#      # For IST Daylight Saving Time (UTC+3)  starting at March 28, 2025
-#      - cron: '*/10 5-13 * * 0-4'
+  #      # For IST Daylight Saving Time (UTC+3)  starting at March 28, 2025
+  #      - cron: '*/10 5-13 * * 0-4'
   workflow_dispatch:
 
 jobs:
